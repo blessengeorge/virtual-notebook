@@ -22,7 +22,8 @@ cap = cv2.VideoCapture(0)
 # cv2.createTrackbar(vl, wnd,0,255,nothing)
 # cv2.createTrackbar(vh, wnd,0,255,nothing)
 
-img = np.zeros((cap.get(3), cap.get(4)))
+drawing = np.ndarray((cap.get(4), cap.get(3)))
+drawing.fill(255)
 
 while True:
 	_, frame = cap.read()
@@ -69,13 +70,16 @@ while True:
 			continue
     	# draw rectangle around contour on original image
 		cv2.rectangle(frame,(x,y),(x+w,y+h),(0,0,0),4)
+		# drawing[y-2:y+2,x-2:x+2] = 0
+		cv2.circle(drawing, (x,y), 2, (0,0,0), -1)
 
 	# cv2.imshow('img',img)
 	# cv2.imshow('blur',blur)
 	# cv2.imshow('erosion',erosion)
-	cv2.imshow('dilation',dilation)
-	cv2.imshow('frame',frame)
-	
+	# cv2.imshow('dilation',dilation)
+	# cv2.imshow('frame',frame)
+	cv2.imshow('Virtual Notebook',drawing)
+
 	k = cv2.waitKey(1) & 0xFF
 	if k == ord('q') :
 		break
