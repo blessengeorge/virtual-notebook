@@ -22,8 +22,9 @@ cap = cv2.VideoCapture(0)
 # cv2.createTrackbar(vl, wnd,0,255,nothing)
 # cv2.createTrackbar(vh, wnd,0,255,nothing)
 
-drawing = np.ndarray((cap.get(4), cap.get(3)))
+drawing = np.ndarray((cap.get(4), cap.get(3), 3))
 drawing.fill(255)
+color_tuple = (0,0,0) # defines color of ink, by default its black
 
 while True:
 	_, frame = cap.read()
@@ -42,8 +43,8 @@ while True:
 	# HSVLOW=np.array([hul,sal,val])
 	# HSVHIGH=np.array([huh,sah,vah])
 
-	HSVLOW = np.array([0, 188, 35])
-	HSVHIGH = np.array([26, 255, 255])
+	HSVLOW = np.array([39, 65, 0])
+	HSVHIGH = np.array([92, 255, 255])
  
 	#create a mask for that range
 	mask = cv2.inRange(frame_hsv,HSVLOW, HSVHIGH)
@@ -52,10 +53,10 @@ while True:
 	
 	kernal = np.ones((9,9), np.uint8)
 	erosion = cv2.erode(blur, kernal, iterations = 1)
-	dilation = cv2.dilate(erosion, kernal, iterations = 1)
+	dilation = cv2.dilate(erosion, kernal, iterations = 2)
 
 	dilation2gray = cv2.cvtColor(dilation, cv2.COLOR_BGR2GRAY)
-	_, threshold1 = cv2.threshold(dilation2gray, 10, 255, cv2.THRESH_BINARY)
+	_, threshold1 = cv2.threshold(dilation2gray, 5, 255, cv2.THRESH_BINARY)
 
 	contours, hierarchy = cv2.findContours(threshold1,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE) # get contours
 	
@@ -69,20 +70,26 @@ while True:
 		if h<10 or w<10:
 			continue
     	# draw rectangle around contour on original image
-		cv2.rectangle(frame,(x,y),(x+w,y+h),(0,0,0),4)
+		# cv2.rectangle(frame,(x,y),(x+w,y+h),(0,0,0),4)
 		# drawing[y-2:y+2,x-2:x+2] = 0
-		cv2.circle(drawing, (x,y), 2, (0,0,0), -1)
+		cv2.circle(drawing, (x,y), 5, color_tuple, -1)
 
 	# cv2.imshow('img',img)
 	# cv2.imshow('blur',blur)
 	# cv2.imshow('erosion',erosion)
-	# cv2.imshow('dilation',dilation)
+	#  cv2.imshow('dilation',threshold1)
 	# cv2.imshow('frame',frame)
 	cv2.imshow('Virtual Notebook',drawing)
 
 	k = cv2.waitKey(1) & 0xFF
 	if k == ord('q') :
 		break
+	elif k == ord('g') or k == ord('G') :
+		color_tuple = (0, 255, 0)
+	elif k == ord('r') or k == ord('R') :
+		color_tuple = (0, 0, 255)
+	elif k == ord('b') or k == ord('B') :
+		color_tuple = (255, 0, 0)
 	
 cv2.destroyAllWindows()
 cap.release()
